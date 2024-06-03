@@ -81,54 +81,46 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-var toPropertyKey = __webpack_require__(6);
-function _defineProperty(e, r, t) {
-  return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
-    value: t,
-    enumerable: !0,
-    configurable: !0,
-    writable: !0
-  }) : e[r] = t, e;
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
 }
-module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+module.exports = _defineProperty;
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-function _typeof(o) {
-  "@babel/helpers - typeof";
-
-  return (module.exports = _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
-    return typeof o;
-  } : function (o) {
-    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
-  }, module.exports.__esModule = true, module.exports["default"] = module.exports), _typeof(o);
-}
-module.exports = _typeof, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 /* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _uuid__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-/* harmony import */ var iframe_resizer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
+/* harmony import */ var _uuid__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
+/* harmony import */ var iframe_resizer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3);
 /* harmony import */ var iframe_resizer__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(iframe_resizer__WEBPACK_IMPORTED_MODULE_2__);
 
 
 
 const defaults = {
   baseUrl: 'https://webtor.io',
+  // baseUrl: 'http://localhost:4000',
   width: '800px',
   height: null,
   mode: 'video',
@@ -137,12 +129,13 @@ const defaults = {
   header: true,
   title: null,
   imdbId: null,
-  version: "0.2.17",
+  version: "0.2.15",
   lang: null,
-  userlang: null,
   i18n: {},
   features: {}
 };
+let injected = false;
+
 function parsePath(path) {
   const chunks = path.replace(/^\//, '').split('/');
   const file = chunks.pop();
@@ -152,56 +145,79 @@ function parsePath(path) {
     file
   };
 }
+
 class Player {
   constructor(send) {
     this.send = send;
   }
+
   play() {
     this.send('play');
   }
+
   pause() {
     this.send('pause');
   }
+
   setPosition(val) {
     this.send('setPosition', val);
   }
+
   open(val) {
     this.send('open', parsePath(val));
   }
+
 }
+
 class WebtorGenerator {
   constructor() {
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "TORRENT_FETCHED", 'torrent fetched');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "TORRENT_ERROR", 'torrent error');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "INIT", 'init');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "OPEN", 'open');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "INJECT", 'inject');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "INITED", 'inited');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "PLAYER_STATUS", 'player status');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "CURRENT_TIME", 'current time');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "DURATION", 'duration');
+
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(this, "OPEN_SUBTITLES", 'open subtitles');
   }
+
   push(data) {
     const id = Object(_uuid__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"])();
     const elId = `webtor-${id}`;
     let dd = Object.assign({}, defaults, data);
+
     if (dd.path) {
       dd = Object.assign({}, dd, parsePath(dd.path));
     }
+
     let el = null;
+
     if (dd.el) {
       el = dd.el;
     } else {
       el = document.getElementById(dd.id);
       if (!el) throw `Failed to find element with id "${dd.id}"`;
     }
+
     if (dd.torrentUrl && dd.magnet) {
       throw `There should be only one magnet or torrentUrl`;
     }
+
     if (!dd.torrentUrl && !dd.magnet) {
       throw `magnet or torrentUrl required`;
     }
+
     const params = {
       id,
       mode: dd.mode
@@ -217,6 +233,7 @@ class WebtorGenerator {
     iframe.setAttribute('mozAllowFullScreen', '');
     iframe.scrolling = 'no';
     iframe.frameBorder = '0';
+
     if (!dd.height) {
       iframe.onload = () => {
         Object(iframe_resizer__WEBPACK_IMPORTED_MODULE_2__["iframeResize"])({
@@ -225,6 +242,7 @@ class WebtorGenerator {
         }, `#${elId}`);
       };
     }
+
     iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; fullscreen; picture-in-picture';
     el.appendChild(iframe);
     iframe.src = url;
@@ -238,16 +256,19 @@ class WebtorGenerator {
     });
     window.addEventListener('message', function (event) {
       const d = event.data;
+
       if (typeof d === 'object') {
         if (d.id == id) {
           d.player = player;
+
           if (d.name == self.INIT) {
             iframe.contentWindow.postMessage({
               id,
               name: 'init',
               data: JSON.parse(JSON.stringify(dd))
             }, '*');
-          } else if (d.name == self.INJECT) {
+          } else if (d.name == self.INJECT && !injected) {
+            injected = true;
             eval(d.data);
           } else if (typeof data.on === 'function') {
             dd.on(d);
@@ -256,15 +277,19 @@ class WebtorGenerator {
       }
     });
   }
+
 }
+
 /* harmony default export */ __webpack_exports__["a"] = (function (data) {
   if (!data) {
     return new WebtorGenerator();
   } else if (Array.isArray(data)) {
     const wg = new WebtorGenerator();
+
     for (const d of data) {
       wg.push(d);
     }
+
     return wg;
   } else {
     return data;
@@ -272,38 +297,33 @@ class WebtorGenerator {
 });
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony default export */ __webpack_exports__["a"] = (function () {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = Math.random() * 16 | 0,
-      v = c == 'x' ? r : r & 0x3 | 0x8;
+        v = c == 'x' ? r : r & 0x3 | 0x8;
     return v.toString(16);
   });
 });
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const iframeResize = __webpack_require__(8)
-
-module.exports = {
-  iframeResize: iframeResize,
-  iframeResizer: iframeResize, // Backwards compatibility
-  contentWindow: __webpack_require__(9)
-}
+module.exports = __webpack_require__(5)
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _webtor_WebtorGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _webtor_WebtorGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+
 
 function clean(obj) {
   for (var propName in obj) {
@@ -311,116 +331,104 @@ function clean(obj) {
       delete obj[propName];
     }
   }
+
   return obj;
 }
-function makeEmbeds(els, init = {}) {
-  for (const v of els) {
-    let src = v.getAttribute('src');
-    if (!src) {
-      src = v.getAttribute('href');
-    }
-    let magnet = null;
-    let torrentUrl = null;
-    if (src && src.match('^magnet:.*')) {
-      magnet = src;
-    }
-    if (src && src.match('\.torrent$') || src && v.getAttribute('type') == 'application/x-bittorrent') {
-      torrentUrl = src;
-    }
-    if (v.getAttribute('data-torrent')) {
-      torrentUrl = v.getAttribute('data-torrent');
-    }
-    const parent = v.parentNode;
-    const width = v.getAttribute('width');
-    const height = v.getAttribute('height');
-    const poster = v.getAttribute('poster');
-    const controls = v.getAttribute('controls') == '' || v.getAttribute('controls') == 'true';
-    const attrData = {};
-    for (const a of v.attributes) {
-      if (a.name == 'data-config') continue;
-      if (a.name.startsWith('data-')) {
-        let val = a.value;
-        try {
-          val = JSON.parse(a.value);
-        } catch (e) {
-          console.log(e);
-        }
-        attrData[a.name.replace('data-', '')] = val;
-      }
-    }
-    const tracks = [];
-    for (const t of v.querySelectorAll('track')) {
-      tracks.push(clean({
-        srclang: t.getAttribute('srclang'),
-        label: t.getAttribute('label'),
-        default: t.getAttribute('default'),
-        src: t.getAttribute('src')
-      }));
-    }
-    if (tracks.length > 0) {
-      attrData.subtitles = tracks;
-    }
-    let config = v.getAttribute('data-config');
-    if (config == null) {
-      config = {};
-    } else {
-      config = JSON.parse(config);
-    }
-    const div = document.createElement('div');
-    if (v.getAttribute('class')) div.setAttribute('class', v.getAttribute('class'));
-    if (v.getAttribute('id')) div.setAttribute('id', v.getAttribute('id'));
-    let data = {
-      el: div,
-      magnet,
-      torrentUrl,
-      width,
-      height,
-      poster,
-      controls
-    };
-    data = Object.assign({}, init, clean(data), attrData, config);
-    parent.replaceChild(div, v);
-    window.webtor.push(clean(data));
-  }
-}
+
 window.webtor = Object(_webtor_WebtorGenerator__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])(window.webtor);
-makeEmbeds(document.querySelectorAll('video'));
-makeEmbeds(document.querySelectorAll('a[download]'), {
-  mode: 'download',
-  width: '400px'
-});
+
+for (const v of document.querySelectorAll('video')) {
+  const src = v.getAttribute('src');
+  let magnet = null;
+  let torrentUrl = null;
+
+  if (src && src.match('^magnet:.*')) {
+    magnet = src;
+  }
+
+  if (src && src.match('\.torrent$') || src && v.getAttribute('type') == 'application/x-bittorrent') {
+    torrentUrl = src;
+  }
+
+  if (v.getAttribute('data-torrent')) {
+    torrentUrl = v.getAttribute('data-torrent');
+  }
+
+  const parent = v.parentNode;
+  const width = v.getAttribute('width');
+  const height = v.getAttribute('height');
+  const poster = v.getAttribute('poster');
+  const controls = v.getAttribute('controls') == '' || v.getAttribute('controls') == 'true';
+  const attrData = {};
+
+  for (const a of v.attributes) {
+    if (a.name == 'data-config') continue;
+
+    if (a.name.startsWith('data-')) {
+      let val = a.value;
+
+      try {
+        val = JSON.parse(a.value);
+      } catch (e) {// console.log(e);
+      }
+
+      attrData[a.name.replace('data-', '')] = val;
+    }
+  }
+
+  const tracks = [];
+
+  for (const t of v.querySelectorAll('track')) {
+    tracks.push(clean({
+      srclang: t.getAttribute('srclang'),
+      label: t.getAttribute('label'),
+      default: t.getAttribute('default'),
+      src: t.getAttribute('src')
+    }));
+  }
+
+  if (tracks.length > 0) {
+    attrData.subtitles = tracks;
+  }
+
+  let config = v.getAttribute('data-config');
+
+  if (config == null) {
+    config = {};
+  } else {
+    config = JSON.parse(config);
+  }
+
+  const div = document.createElement('div');
+  if (v.getAttribute('class')) div.setAttribute('class', v.getAttribute('class'));
+  if (v.getAttribute('id')) div.setAttribute('id', v.getAttribute('id'));
+  let data = {
+    el: div,
+    magnet,
+    torrentUrl,
+    width,
+    height,
+    poster,
+    controls
+  };
+  data = Object.assign({}, data, attrData, config);
+  parent.replaceChild(div, v);
+  window.webtor.push(clean(data));
+}
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var iframeResize = __webpack_require__(6)
+
+exports.iframeResize = iframeResize
+exports.iframeResizer = iframeResize // Backwards compatability
+exports.iframeResizerContentWindow = __webpack_require__(7)
+
 
 /***/ }),
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _typeof = __webpack_require__(1)["default"];
-var toPrimitive = __webpack_require__(7);
-function toPropertyKey(t) {
-  var i = toPrimitive(t, "string");
-  return "symbol" == _typeof(i) ? i : i + "";
-}
-module.exports = toPropertyKey, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _typeof = __webpack_require__(1)["default"];
-function toPrimitive(t, r) {
-  if ("object" != _typeof(t) || !t) return t;
-  var e = t[Symbol.toPrimitive];
-  if (void 0 !== e) {
-    var i = e.call(t, r || "default");
-    if ("object" != _typeof(i)) return i;
-    throw new TypeError("@@toPrimitive must return a primitive value.");
-  }
-  return ("string" === r ? String : Number)(t);
-}
-module.exports = toPrimitive, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -437,10 +445,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 ;(function (undefined) {
   if (typeof window === 'undefined') return // don't run for server side render
 
-  // var VERSION = '4.3.11'
-
   var count = 0,
-    destroyObserver,
     logEnabled = false,
     hiddenCheckEnabled = false,
     msgHeader = 'message',
@@ -449,15 +454,15 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     msgIdLen = msgId.length,
     pagePosition = null,
     requestAnimationFrame = window.requestAnimationFrame,
-    resetRequiredMethods = Object.freeze({
+    resetRequiredMethods = {
       max: 1,
       scroll: 1,
       bodyScroll: 1,
       documentElementScroll: 1
-    }),
+    },
     settings = {},
     timer = null,
-    defaults = Object.freeze({
+    defaults = {
       autoResize: true,
       bodyBackground: null,
       bodyMargin: null,
@@ -469,13 +474,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       heightCalculationMethod: 'bodyOffset',
       id: 'iFrameResizer',
       interval: 32,
-      license: '1jqr0si6pnt',
       log: false,
       maxHeight: Infinity,
       maxWidth: Infinity,
       minHeight: 0,
       minWidth: 0,
-      mouseEvents: true,
       resizeFrom: 'parent',
       scrolling: false,
       sizeHeight: true,
@@ -491,13 +494,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       onMessage: function () {
         warn('onMessage function not defined')
       },
-      onMouseEnter: function () {},
-      onMouseLeave: function () {},
       onResized: function () {},
       onScroll: function () {
         return true
       }
-    })
+    }
 
   function getMutationObserver() {
     return (
@@ -524,13 +525,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame']
     }
 
-    if (requestAnimationFrame) {
+    if (!requestAnimationFrame) {
+      log('setup', 'RequestAnimationFrame not supported')
+    } else {
       // Firefox extension content-scripts have a globalThis object that is not the same as window.
       // Binding `requestAnimationFrame` to window allows the function to work and prevents errors
       // being thrown when run in that context, and should be a no-op in every other context.
       requestAnimationFrame = requestAnimationFrame.bind(window)
-    } else {
-      log('setup', 'RequestAnimationFrame not supported')
     }
   }
 
@@ -538,10 +539,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     var retStr = 'Host page: ' + iframeId
 
     if (window.top !== window.self) {
-      retStr =
-        window.parentIFrame && window.parentIFrame.getId
-          ? window.parentIFrame.getId() + ': ' + iframeId
-          : 'Nested host page: ' + iframeId
+      if (window.parentIFrame && window.parentIFrame.getId) {
+        retStr = window.parentIFrame.getId() + ': ' + iframeId
+      } else {
+        retStr = 'Nested host page: ' + iframeId
+      }
     }
 
     return retStr
@@ -589,7 +591,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
 
     function processMsg() {
-      var data = msg.slice(msgIdLen).split(':')
+      var data = msg.substr(msgIdLen).split(':')
       var height = data[1] ? parseInt(data[1], 10) : 0
       var iframe = settings[data[0]] && settings[data[0]].iframe
       var compStyle = getComputedStyle(iframe)
@@ -698,14 +700,14 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
     function isMessageForUs() {
       return (
-        msgId === ('' + msg).slice(0, msgIdLen) &&
-        msg.slice(msgIdLen).split(':')[0] in settings
+        msgId === ('' + msg).substr(0, msgIdLen) &&
+        msg.substr(msgIdLen).split(':')[0] in settings
       ) // ''+Protects against non-string msg
     }
 
     function isMessageFromMetaParent() {
       // Test if this message is from a parent above us. This is an ugly test, however, updating
-      // the message format would break backwards compatibility.
+      // the message format would break backwards compatibity.
       var retCode = messageData.type in { true: 1, false: 1, undefined: 1 }
 
       if (retCode) {
@@ -716,7 +718,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
 
     function getMsgBody(offset) {
-      return msg.slice(msg.indexOf(':') + msgHeaderLen + offset)
+      return msg.substr(msg.indexOf(':') + msgHeaderLen + offset)
     }
 
     function forwardMsgFromIFrame(msgBody) {
@@ -728,12 +730,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           msgBody +
           '}'
       )
-
       on('onMessage', {
         iframe: messageData.iframe,
         message: JSON.parse(msgBody)
       })
-
       log(iframeId, '--')
     }
 
@@ -874,18 +874,18 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           ')'
       )
 
-      if (window.top === window.self) {
-        reposition()
-      } else {
+      if (window.top !== window.self) {
         scrollParent()
+      } else {
+        reposition()
       }
     }
 
     function scrollTo() {
-      if (false === on('onScroll', pagePosition)) {
-        unsetPagePosition()
-      } else {
+      if (false !== on('onScroll', pagePosition)) {
         setPagePosition(iframeId)
+      } else {
+        unsetPagePosition()
       }
     }
 
@@ -932,35 +932,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
       if (target) {
         jumpToTarget()
-      } else if (window.top === window.self) {
-        log(iframeId, 'In page link #' + hash + ' not found')
-      } else {
+      } else if (window.top !== window.self) {
         jumpToParent()
-      }
-    }
-
-    function onMouse(event) {
-      var mousePos = {}
-
-      if (Number(messageData.width) === 0 && Number(messageData.height) === 0) {
-        var data = getMsgBody(9).split(':')
-        mousePos = {
-          x: data[1],
-          y: data[0]
-        }
       } else {
-        mousePos = {
-          x: messageData.width,
-          y: messageData.height
-        }
+        log(iframeId, 'In page link #' + hash + ' not found')
       }
-
-      on(event, {
-        iframe: messageData.iframe,
-        screenX: Number(mousePos.x),
-        screenY: Number(mousePos.y),
-        type: messageData.type
-      })
     }
 
     function on(funcName, val) {
@@ -971,86 +947,53 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       if (settings[iframeId] && settings[iframeId].firstRun) firstRun()
 
       switch (messageData.type) {
-        case 'close': {
+        case 'close':
           closeIFrame(messageData.iframe)
           break
-        }
 
-        case 'message': {
+        case 'message':
           forwardMsgFromIFrame(getMsgBody(6))
           break
-        }
 
-        case 'mouseenter': {
-          onMouse('onMouseEnter')
-          break
-        }
-
-        case 'mouseleave': {
-          onMouse('onMouseLeave')
-          break
-        }
-
-        case 'autoResize': {
+        case 'autoResize':
           settings[iframeId].autoResize = JSON.parse(getMsgBody(9))
           break
-        }
 
-        case 'scrollTo': {
+        case 'scrollTo':
           scrollRequestFromChild(false)
           break
-        }
 
-        case 'scrollToOffset': {
+        case 'scrollToOffset':
           scrollRequestFromChild(true)
           break
-        }
 
-        case 'pageInfo': {
+        case 'pageInfo':
           sendPageInfoToIframe(
             settings[iframeId] && settings[iframeId].iframe,
             iframeId
           )
           startPageInfoMonitor()
           break
-        }
 
-        case 'pageInfoStop': {
+        case 'pageInfoStop':
           stopPageInfoMonitor()
           break
-        }
 
-        case 'inPageLink': {
+        case 'inPageLink':
           findTarget(getMsgBody(9))
           break
-        }
 
-        case 'reset': {
+        case 'reset':
           resetIFrame(messageData)
           break
-        }
 
-        case 'init': {
+        case 'init':
           resizeIFrame()
           on('onInit', messageData.iframe)
           break
-        }
 
-        default: {
-          if (
-            Number(messageData.width) === 0 &&
-            Number(messageData.height) === 0
-          ) {
-            warn(
-              'Unsupported message received (' +
-                messageData.type +
-                '), this is likely due to the iframe containing a later ' +
-                'version of iframe-resizer than the parent page'
-            )
-          } else {
-            resizeIFrame()
-          }
-        }
+        default:
+          resizeIFrame()
       }
     }
 
@@ -1158,23 +1101,19 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     chkEvent(iframeId, 'onClosed', iframeId)
     log(iframeId, '--')
     removeIframeListeners(iframe)
-    if (destroyObserver) {
-      destroyObserver.disconnect()
-      destroyObserver = null
-    }
   }
 
   function getPagePosition(iframeId) {
     if (null === pagePosition) {
       pagePosition = {
         x:
-          window.pageXOffset === undefined
-            ? document.documentElement.scrollLeft
-            : window.pageXOffset,
+          window.pageXOffset !== undefined
+            ? window.pageXOffset
+            : document.documentElement.scrollLeft,
         y:
-          window.pageYOffset === undefined
-            ? document.documentElement.scrollTop
-            : window.pageYOffset
+          window.pageYOffset !== undefined
+            ? window.pageYOffset
+            : document.documentElement.scrollTop
       }
       log(
         iframeId,
@@ -1376,25 +1315,22 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       ':' +
       settings[iframeId].resizeFrom +
       ':' +
-      settings[iframeId].widthCalculationMethod +
-      ':' +
-      settings[iframeId].mouseEvents
+      settings[iframeId].widthCalculationMethod
     )
-  }
-
-  function isNumber(value) {
-    return typeof value === 'number'
   }
 
   function setupIFrame(iframe, options) {
     function setLimits() {
       function addStyle(style) {
-        var styleValue = settings[iframeId][style]
-        if (Infinity !== styleValue && 0 !== styleValue) {
-          iframe.style[style] = isNumber(styleValue)
-            ? styleValue + 'px'
-            : styleValue
-          log(iframeId, 'Set ' + style + ' = ' + iframe.style[style])
+        if (
+          Infinity !== settings[iframeId][style] &&
+          0 !== settings[iframeId][style]
+        ) {
+          iframe.style[style] = settings[iframeId][style] + 'px'
+          log(
+            iframeId,
+            'Set ' + style + ' = ' + settings[iframeId][style] + 'px'
+          )
         }
       }
 
@@ -1430,10 +1366,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
 
     function ensureHasId(iframeId) {
-      if (typeof iframeId !== 'string') {
-        throw new TypeError('Invaild id for iFrame. Expected String')
-      }
-
       if ('' === iframeId) {
         // eslint-disable-next-line no-multi-assign
         iframe.id = iframeId = newId()
@@ -1462,25 +1394,21 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           ? 'hidden'
           : 'auto'
       switch (settings[iframeId] && settings[iframeId].scrolling) {
-        case 'omit': {
+        case 'omit':
           break
-        }
 
-        case true: {
+        case true:
           iframe.scrolling = 'yes'
           break
-        }
 
-        case false: {
+        case false:
           iframe.scrolling = 'no'
           break
-        }
 
-        default: {
+        default:
           iframe.scrolling = settings[iframeId]
             ? settings[iframeId].scrolling
             : 'no'
-        }
       }
     }
 
@@ -1563,7 +1491,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
       function createDestroyObserver(MutationObserver) {
         if (!iframe.parentNode) {
-          return null
+          return
         }
 
         var destroyObserver = new MutationObserver(function (mutations) {
@@ -1579,12 +1507,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         destroyObserver.observe(iframe.parentNode, {
           childList: true
         })
-        return destroyObserver
       }
 
       var MutationObserver = getMutationObserver()
       if (MutationObserver) {
-        destroyObserver = createDestroyObserver(MutationObserver)
+        createDestroyObserver(MutationObserver)
       }
 
       addEventListener(iframe, 'load', iFrameLoaded)
@@ -1639,12 +1566,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
     function processOptions(options) {
       options = options || {}
-
-      settings[iframeId] = Object.create(null) // Protect against prototype attacks
-      settings[iframeId].iframe = iframe
-      settings[iframeId].firstRun = true
-      settings[iframeId].remoteHost =
-        iframe.src && iframe.src.split('/').slice(0, 3).join('/')
+      settings[iframeId] = {
+        firstRun: true,
+        iframe: iframe,
+        remoteHost: iframe.src && iframe.src.split('/').slice(0, 3).join('/')
+      }
 
       checkOptions(options)
       Object.keys(options).forEach(depricate, options)
@@ -1664,15 +1590,15 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
     var iframeId = ensureHasId(iframe.id)
 
-    if (beenHere()) {
-      warn(iframeId, 'Ignored iFrame, already setup.')
-    } else {
+    if (!beenHere()) {
       processOptions(options)
       setScrolling()
       setLimits()
       setupBodyMarginValues()
       init(createOutgoingMsg(iframeId))
       setupIFrameObject()
+    } else {
+      warn(iframeId, 'Ignored iFrame, already setup.')
     }
   }
 
@@ -1773,11 +1699,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
   /* istanbul ignore next */
   function tabVisible() {
     function resize() {
-      sendTriggerMsg('Tab Visible', 'resize')
+      sendTriggerMsg('Tab Visable', 'resize')
     }
 
     if ('hidden' !== document.visibilityState) {
-      log('document', 'Trigger event: Visibility change')
+      log('document', 'Trigger event: Visiblity change')
       debouce(resize, 16)
     }
   }
@@ -1850,22 +1776,19 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
       switch (typeof target) {
         case 'undefined':
-        case 'string': {
+        case 'string':
           Array.prototype.forEach.call(
             document.querySelectorAll(target || 'iframe'),
             init.bind(undefined, options)
           )
           break
-        }
 
-        case 'object': {
+        case 'object':
           init(options, target)
           break
-        }
 
-        default: {
+        default:
           throw new TypeError('Unexpected data type (' + typeof target + ')')
-        }
       }
 
       return iFrames
@@ -1886,7 +1809,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
   }
 
-  if (window.jQuery !== undefined) {
+  if (window.jQuery) {
     createJQueryPublicMethod(window.jQuery)
   }
 
@@ -1901,7 +1824,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 
 /***/ }),
-/* 9 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -1938,7 +1861,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     interval = 32,
     intervalTimer = null,
     logging = false,
-    mouseEvents = false,
     msgID = '[iFrameSizer]', // Must match host page msg ID
     msgIdLen = msgID.length,
     myID = '',
@@ -1985,7 +1907,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       {},
       {
         passive: {
-          // eslint-disable-next-line getter-return
           get: function () {
             passiveSupported = true
           }
@@ -2018,7 +1939,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       timeout = null,
       previous = 0,
       later = function () {
-        previous = Date.now()
+        previous = getNow()
         timeout = null
         result = func.apply(context, args)
         if (!timeout) {
@@ -2028,7 +1949,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       }
 
     return function () {
-      var now = Date.now()
+      var now = getNow()
 
       if (!previous) {
         previous = now
@@ -2060,6 +1981,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
   }
 
+  var getNow =
+    Date.now ||
+    function () {
+      /* istanbul ignore next */ // Not testable in PhantonJS
+      return new Date().getTime()
+    }
+
   function formatLogMsg(msg) {
     return msgID + '[' + myID + '] ' + msg
   }
@@ -2080,7 +2008,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
   function init() {
     readDataFromParent()
-    log('Initialising iFrame (' + window.location.href + ')')
+    log('Initialising iFrame (' + location.href + ')')
     readDataFromPage()
     setMargin()
     setBodyStyle('background', bodyBackground)
@@ -2090,7 +2018,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     checkWidthMode()
     stopInfiniteResizingOfIFrame()
     setupPublicMethods()
-    setupMouseEvents()
     startEventListeners()
     inPageLinks = setupInPageLinks()
     sendSize('init', 'Init message from host page')
@@ -2102,23 +2029,22 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       return 'true' === str
     }
 
-    var data = initMsg.slice(msgIdLen).split(':')
+    var data = initMsg.substr(msgIdLen).split(':')
 
     myID = data[0]
-    bodyMargin = undefined === data[1] ? bodyMargin : Number(data[1]) // For V1 compatibility
-    calculateWidth = undefined === data[2] ? calculateWidth : strBool(data[2])
-    logging = undefined === data[3] ? logging : strBool(data[3])
-    interval = undefined === data[4] ? interval : Number(data[4])
-    autoResize = undefined === data[6] ? autoResize : strBool(data[6])
+    bodyMargin = undefined !== data[1] ? Number(data[1]) : bodyMargin // For V1 compatibility
+    calculateWidth = undefined !== data[2] ? strBool(data[2]) : calculateWidth
+    logging = undefined !== data[3] ? strBool(data[3]) : logging
+    interval = undefined !== data[4] ? Number(data[4]) : interval
+    autoResize = undefined !== data[6] ? strBool(data[6]) : autoResize
     bodyMarginStr = data[7]
-    heightCalcMode = undefined === data[8] ? heightCalcMode : data[8]
+    heightCalcMode = undefined !== data[8] ? data[8] : heightCalcMode
     bodyBackground = data[9]
     bodyPadding = data[10]
-    tolerance = undefined === data[11] ? tolerance : Number(data[11])
-    inPageLinks.enable = undefined === data[12] ? false : strBool(data[12])
-    resizeFrom = undefined === data[13] ? resizeFrom : data[13]
-    widthCalcMode = undefined === data[14] ? widthCalcMode : data[14]
-    mouseEvents = undefined === data[15] ? mouseEvents : strBool(data[15])
+    tolerance = undefined !== data[11] ? Number(data[11]) : tolerance
+    inPageLinks.enable = undefined !== data[12] ? strBool(data[12]) : false
+    resizeFrom = undefined !== data[13] ? data[13] : resizeFrom
+    widthCalcMode = undefined !== data[14] ? data[14] : widthCalcMode
   }
 
   function depricate(key) {
@@ -2284,7 +2210,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     manageTriggerEvent({
       method: method,
       eventType: 'Print',
-      eventNames: ['afterprint', 'beforeprint']
+      eventName: ['afterprint', 'beforeprint']
     })
     manageTriggerEvent({
       method: method,
@@ -2431,13 +2357,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     function getPagePosition() {
       return {
         x:
-          window.pageXOffset === undefined
-            ? document.documentElement.scrollLeft
-            : window.pageXOffset,
+          window.pageXOffset !== undefined
+            ? window.pageXOffset
+            : document.documentElement.scrollLeft,
         y:
-          window.pageYOffset === undefined
-            ? document.documentElement.scrollTop
-            : window.pageYOffset
+          window.pageYOffset !== undefined
+            ? window.pageYOffset
+            : document.documentElement.scrollTop
       }
     }
 
@@ -2472,24 +2398,21 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           document.getElementById(hashData) ||
           document.getElementsByName(hashData)[0]
 
-      if (undefined === target) {
+      if (undefined !== target) {
+        jumpToTarget(target)
+      } else {
         log(
           'In page link (#' +
             hash +
             ') not found in iFrame, so sending to parent'
         )
         sendMsg(0, 0, 'inPageLink', '#' + hash)
-      } else {
-        jumpToTarget(target)
       }
     }
 
     function checkLocationHash() {
-      var hash = window.location.hash
-      var href = window.location.href
-
-      if ('' !== hash && '#' !== hash) {
-        findTarget(href)
+      if ('' !== location.hash && '#' !== location.hash) {
+        findTarget(location.href)
       }
     }
 
@@ -2545,22 +2468,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     return {
       findTarget: findTarget
     }
-  }
-
-  function setupMouseEvents() {
-    if (mouseEvents !== true) return
-
-    function sendMouse(e) {
-      sendMsg(0, 0, e.type, e.screenY + ':' + e.screenX)
-    }
-
-    function addMouseListener(evt, name) {
-      log('Add event listener: ' + name)
-      addEventListener(window.document, evt, sendMouse)
-    }
-
-    addMouseListener('mouseenter', 'Mouse Enter')
-    addMouseListener('mouseleave', 'Mouse Leave')
   }
 
   function setupPublicMethods() {
@@ -2695,7 +2602,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
     function imageEventTriggered(event, type, typeDesc) {
       removeImageLoadListener(event.target)
-      sendSize(type, typeDesc + ': ' + event.target.src)
+      sendSize(type, typeDesc + ': ' + event.target.src, undefined, undefined)
     }
 
     function imageLoaded(event) {
@@ -2777,7 +2684,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     el = el || document.body // Not testable in phantonJS
 
     retVal = document.defaultView.getComputedStyle(el, null)
-    retVal = null === retVal ? 0 : retVal[prop]
+    retVal = null !== retVal ? retVal[prop] : 0
 
     return parseInt(retVal, base)
   }
@@ -2795,7 +2702,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       elVal = 0,
       maxVal = 0,
       Side = capitalizeFirstLetter(side),
-      timer = Date.now()
+      timer = getNow()
 
     for (var i = 0; i < elementsLength; i++) {
       elVal =
@@ -2806,7 +2713,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       }
     }
 
-    timer = Date.now() - timer
+    timer = getNow() - timer
 
     log('Parsed ' + elementsLength + ' HTML elements')
     log('Element position calculated in ' + timer + 'ms')
@@ -2816,12 +2723,12 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     return maxVal
   }
 
-  function getAllMeasurements(dimensions) {
+  function getAllMeasurements(dimention) {
     return [
-      dimensions.bodyOffset(),
-      dimensions.bodyScroll(),
-      dimensions.documentElementOffset(),
-      dimensions.documentElementScroll()
+      dimention.bodyOffset(),
+      dimention.bodyScroll(),
+      dimention.documentElementOffset(),
+      dimention.documentElementScroll()
     ]
   }
 
@@ -2833,7 +2740,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
     var elements = document.querySelectorAll('[' + tag + ']')
 
-    if (elements.length === 0) noTaggedElementsFound()
+    if (0 === elements.length) noTaggedElementsFound()
 
     return getMaxElement(side, elements)
   }
@@ -2852,7 +2759,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       },
 
       offset: function () {
-        return getHeight.bodyOffset() // Backwards compatibility
+        return getHeight.bodyOffset() // Backwards compatability
       },
 
       bodyScroll: function getBodyScrollHeight() {
@@ -2956,9 +2863,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       }
 
       currentHeight =
-        undefined === customHeight ? getHeight[heightCalcMode]() : customHeight
+        undefined !== customHeight ? customHeight : getHeight[heightCalcMode]()
       currentWidth =
-        undefined === customWidth ? getWidth[widthCalcMode]() : customWidth
+        undefined !== customWidth ? customWidth : getWidth[widthCalcMode]()
 
       return (
         checkTolarance(height, currentHeight) ||
@@ -3012,9 +2919,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       return triggerLocked && triggerEvent in doubleEventList
     }
 
-    if (isDoubleFiredEvent()) {
-      log('Trigger event cancelled: ' + triggerEvent)
-    } else {
+    if (!isDoubleFiredEvent()) {
       recordTrigger()
       if (triggerEvent === 'init') {
         sizeIFrame(triggerEvent, triggerEventDesc, customHeight, customWidth)
@@ -3026,6 +2931,8 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           customWidth
         )
       }
+    } else {
+      log('Trigger event cancelled: ' + triggerEvent)
     }
   }
 
@@ -3077,7 +2984,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           size +
           ':' +
           triggerEvent +
-          (undefined === msg ? '' : ':' + msg)
+          (undefined !== msg ? ':' + msg : '')
 
       log('Sending message to host page (' + message + ')')
       target.postMessage(msgID + message, targetOrigin)
@@ -3103,11 +3010,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       },
 
       reset: function resetFromParent() {
-        if (initLock) {
-          log('Page reset ignored by init')
-        } else {
+        if (!initLock) {
           log('Page size reset by host page')
           triggerReset('resetPage')
+        } else {
+          log('Page reset ignored by init')
         }
       },
 
@@ -3120,7 +3027,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       },
       inPageLink: function inPageLinkF() {
         this.moveToAnchor()
-      }, // Backward compatibility
+      }, // Backward compatability
 
       pageInfo: function pageInfoFromParent() {
         var msgBody = getData()
@@ -3140,7 +3047,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
 
     function isMessageForUs() {
-      return msgID === ('' + event.data).slice(0, msgIdLen) // ''+ Protects against non-string messages
+      return msgID === ('' + event.data).substr(0, msgIdLen) // ''+ Protects against non-string messages
     }
 
     function getMessageType() {
@@ -3148,21 +3055,20 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
 
     function getData() {
-      return event.data.slice(event.data.indexOf(':') + 1)
+      return event.data.substr(event.data.indexOf(':') + 1)
     }
 
     function isMiddleTier() {
       return (
         (!( true && module.exports) &&
           'iFrameResize' in window) ||
-        (window.jQuery !== undefined &&
-          'iFrameResize' in window.jQuery.prototype)
+        ('jQuery' in window && 'iFrameResize' in window.jQuery.prototype)
       )
     }
 
     function isInitMsg() {
       // Test if this message is from a child below us. This is an ugly test, however, updating
-      // the message format would break backwards compatibility.
+      // the message format would break backwards compatibity.
       return event.data.split(':')[2] in { true: 1, false: 1 }
     }
 
@@ -3203,15 +3109,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
   }
 
-  // Setup if not already running
-  if (!('iframeResizer' in window)) {
-    window.iframeChildListener = function (data) {
-      receiver({ data, sameDomian: true })
-    }
-    addEventListener(window, 'message', receiver)
-    addEventListener(window, 'readystatechange', chkLateLoaded)
-    chkLateLoaded()
-  }
+  addEventListener(window, 'message', receiver)
+  addEventListener(window, 'readystatechange', chkLateLoaded)
+  chkLateLoaded()
 
   
 })()
